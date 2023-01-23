@@ -2,7 +2,6 @@ import { down, mouse, right, up, left } from "@nut-tree/nut-js"
 import { Duplex } from "stream"
 
 const handleMouseActions = async (action: string, args: any) => {
-  console.log(action)
   switch (action) {
     case "up":
       return await mouse.move(up(parseInt(args)))

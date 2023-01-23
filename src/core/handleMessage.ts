@@ -8,7 +8,6 @@ const getHandleResponse = async (
   action: string,
   args: any
 ) => {
-  console.log(handler)
   switch (handler) {
     case "mouse":
       return await handleMouseActions(action, args)
@@ -26,9 +25,8 @@ const handleMessage = async (chunk: any, stream: Duplex) => {
   const [handler, action] = command.split("_")
 
   const handlerResponse = await getHandleResponse(handler, action, args)
-  return typeof handlerResponse === "function"
-    ? handlerResponse?.(stream)
-    : handlerResponse
+  if (typeof handlerResponse === "function") handlerResponse?.(stream)
+  else stream.write(`${command}_${args}`)
 }
 
 export default handleMessage
