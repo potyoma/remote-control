@@ -8,25 +8,34 @@ const drawRectangle = async (sizeX: number, sizeY?: number) => {
 }
 
 const drawCircle = async (x: number, y: number, radius: number) => {
-  const step = 0.01 * Math.PI
+  const step = Math.PI / 100
   const fullTurn = Math.PI * 2
-  const centerX = x + radius
+  const center = x + radius
 
-  for (let angle = 0; angle <= fullTurn; angle += step) {
-    await mouse.move([
-      {
-        x: centerX - Math.round(radius * Math.cos(angle)),
-        y: y - Math.round(radius * Math.sin(angle)),
-      },
-    ])
-  }
+  const getPoint = (
+    start: number,
+    radius: number,
+    angle: number,
+    isYAxis: boolean
+  ) =>
+    start - Math.round(radius * (isYAxis ? Math.sin(angle) : Math.cos(angle)))
+
+  const points = Array.from({ length: Math.ceil(fullTurn / step) }, (_, i) => {
+    const angle = i * step
+    return {
+      x: getPoint(center, radius, angle, false),
+      y: getPoint(y, radius, angle, true),
+    }
+  })
+
+  await mouse.move(points)
 }
 
 const decideHandler = async (action: string, args: any) => {
   switch (action) {
     case "circle":
-      const position = await mouse.getPosition()
-      return async () => await drawCircle(position.x, position.y, args)
+      const { x, y } = await mouse.getPosition()
+      return async () => await drawCircle(x, y, parseInt(args[0]))
     case "rectangle":
       return async () =>
         await drawRectangle(parseInt(args[0]), parseInt(args[1]))
